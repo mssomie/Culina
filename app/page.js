@@ -110,17 +110,15 @@ export default function Home() {
               <Typography variant="h2">
                 This should work as well
               </Typography>
-              {
-                inventory.map((item)=>(
+              {               
                   <Grid>
                     <ItemList 
                     items={inventory}
                     addItem={addItem}
                     removeItem={removeItem}
-                    />
-                    
+                    />               
                   </Grid>
-                ))
+                
               }
               
 

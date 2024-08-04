@@ -41,7 +41,7 @@ const ItemCard = ({ item, addItem, removeItem }) => {
 
 const ItemList = ({ items, addItem, removeItem }) => {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={1}>
       {items.map((item) => (
         <Grid item xs={12} sm={12} md={12} key={item.name}>
           <ItemCard item={item} addItem={addItem} removeItem={removeItem} />
