@@ -1,12 +1,14 @@
 'use client'
 import {useState, useEffect} from 'react'
 import {firestore} from '@/firebase'
-import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper} from '@mui/material' 
+import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
 import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc } from "firebase/firestore";
 import theme from './theme'
 import CustomCard from "@/components/CustomCard"
 import ItemList from "@/components/ItemCard"
 import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import CustomTextField from '@/components/CustomTextField';
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -84,6 +86,13 @@ export default function Home() {
     // to include category
     // ||item.category.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Form submitted:', formValues);
+    // Add form submission logic here
+  };
+
   
   return(
     <ThemeProvider theme = {theme}>
@@ -96,6 +105,51 @@ export default function Home() {
         flexDirection: 'column',
       }}
     >
+       <Modal open ={open} onClose ={handleClose}>
+      <Box 
+        position ="absolute" 
+        top="50%" 
+        left="50%" 
+        width={700}  
+        border= "2px solid #000"  
+        boxshadow={24} 
+        p={4} 
+        display ="flex" 
+        flexDirection="column gap={3}"
+        sx={{transform: "translate(-50%, -50%)", backgroundColor: theme.palette.background.default, // Apply background color from the theme
+      }}
+        >
+          <Typography variant ="h6">Add Item </Typography> 
+          <FormGroup>
+            <row>
+              
+            </row>
+          </FormGroup>
+          <Stack width="100%" direction ="row" spacing={2}>
+            <CustomTextField
+            variant="outlined"
+            fullWidth
+            value ={itemName}
+            onChange = {(e)=> {
+              setItemName(e.target.value)
+            }}>
+
+            </CustomTextField>
+            <Button
+              variant="outlined"
+              onClick={()=>{
+                addItem(itemName)
+                setItemName('')
+                handleClose()
+              }}>ADD
+
+              </Button>
+          </Stack>
+
+
+      </Box>
+
+    </Modal>
        <Container sx={{
           flex: 1, // Allow the container to grow and fill the available space
           padding: 2,
@@ -124,27 +178,69 @@ export default function Home() {
                 Everyone has the right to freedom of thought
               </Typography>
               <Box width="100%" sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                <Paper
-                  component="form"
-                  sx={{ display: 'flex', alignItems: 'center', width:400, width: '100%', p: '2px 4px' }}
-                >
+                <Grid container spacing ={2}>
+                  <Grid item xs={9} md={10}> 
+                  
                   <TextField
                     variant="outlined"
-                    placeholder="Search..."
+                    placeholder="Start typing to filter.."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     fullWidth
+                    
+                    sx={{backgroundColor: "#0f171A",
+                    
+                    borderRadius: '16px', 
+
+                    '& .MuiInputBase-input': {
+                      padding: '0.8rem 0.8rem', // Adjust padding to fit height
+                    },
+                   
+                    
+                    padding: '1px 1px', 
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#4c5e63',
+                        borderRadius: '16px', 
+                        borderWidth: '1px',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#02E6A2',
+                        borderWidth: '1px',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#02E6A2',
+                        borderWidth: '1px',
+                      },
+                    },}}
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end">
+                        <InputAdornment position="end" spacing={2}>
                           <IconButton onClick={handleSearchChange}>
-                            <SearchIcon />
+                            <SearchIcon sx={{ color: theme.palette.primary.main}}/>
+                            <Typography variant ="body1" sx={{color: 'white', padding: '8px'}}>
+                              Search
+                              </Typography>
                           </IconButton>
                         </InputAdornment>
                       ),
+                     
                     }}
                   />
-                </Paper>
+          
+
+                  </Grid>
+                  <Grid item xs={3} md={2}>
+                  <Button sx={{
+                       padding: '0.65em 1rem',
+                  }}
+                  variant = "contained" onClick={()=>{handleOpen()}} startIcon ={<AddIcon />}>
+                     New Item
+                  </Button>
+
+                  </Grid>
+                </Grid>
+                
               </Box>
               {               
                   <Grid>
@@ -173,46 +269,7 @@ export default function Home() {
     </ThemeProvider>
    
   //  <Box width="100vw" height="100vh" display = "flex" flexDirection="column" justifyContent ="center" alignItems ="center" gap={2}> 
-  //   <Modal open ={open} onClose ={handleClose}>
-  //     <Box 
-  //       position ="absolute" 
-  //       top="50%" 
-  //       left="50%" 
-  //       width={400} 
-  //       bgcolor="white" 
-  //       border= "2px solid #000"  
-  //       boxshadow={24} 
-  //       p={4} 
-  //       display ="flex" 
-  //       flexDirection="column gap={3}"
-  //       sx={{transform: "translate(-50%, -50%)" }}
-  //       >
-  //         <Typography variant ="h6">Add Item </Typography> 
-  //         <Stack width="100%" direction ="row" spacing={2}>
-  //           <TextField
-  //           variant="outlined"
-  //           fullWidth
-  //           value ={itemName}
-  //           onChange = {(e)=> {
-  //             setItemName(e.target.value)
-  //           }}>
-
-  //           </TextField>
-  //           <Button
-  //             variant="outlined"
-  //             onClick={()=>{
-  //               addItem(itemName)
-  //               setItemName('')
-  //               handleClose()
-  //             }}>ADD
-
-  //             </Button>
-  //         </Stack>
-
-
-  //     </Box>
-
-  //   </Modal>
+   
   //   <Button variant = "contained" onClick={()=>{
   //     handleOpen()}}
   //     > Add Item</Button>

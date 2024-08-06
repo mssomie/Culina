@@ -28,7 +28,7 @@ fontClassName: signika.className,
   },
 
   typography:{
-    fontFamily: 'signika',
+    fontFamily: signika.style.fontFamily,
     h1:{
         fontSize: '44px',
         // fontWeight: 700
@@ -45,7 +45,50 @@ fontClassName: signika.className,
         fontSize: '16px',
         // fontWeight: 700
     },
-  }
+    label:{
+        fontSize: '16px',
+        fontWeight: 300,
+        color: '#4c5e63',
+    },
+    button: {
+        fontFamily: signika.style.fontFamily,
+        fontSize: '14px', // Set font size for buttons
+        textTransform: 'none', // Prevent text transformation (i.e., no forced capitalization)
+      },
+  },
+
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          // Apply global text styles to all TextField components
+          '& input': {
+            fontFamily: signika.style.fontFamily,
+            fontSize: '14px',
+          },
+        },
+      },
+    },
+    MuiButton: {
+        styleOverrides: {
+          root: {
+            fontFamily: signika.style.fontFamily,
+            fontSize: '14px',
+            textTransform: 'none', // Prevent text transformation
+            borderRadius: '16px',
+          },
+        },
+      },
+    MuiInputAdornment: {
+        styleOverrides: {
+          root: {
+            fontFamily: signika.style.fontFamily,
+            fontSize: '14px', 
+          },
+        },
+    },
+  },
 });
+
 
 export default theme;

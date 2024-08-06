@@ -9,22 +9,29 @@ const ItemCard = ({ item, addItem, removeItem }) => {
   return (
     <CustomCard sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
       <CardMedia
-        component="img"
-        sx={{ width: 100, height: 100, objectFit: 'cover' }}
+        component="image"
+        sx={{ width: 80,
+             height: 80, 
+             objectFit: 'contain',
+             borderRadius: '16px', // Adjust the border radius as needed (e.g., 1 for smaller radius, 2 for medium, etc.)
+             p: 4, 
+             marginLeft: '0.8rem'
+             }}
         image={item.image || "bf.png"}
         alt={item.name}
       >
       </CardMedia>
       <CardContent sx={{ flex: 1 }}>
-        <Typography variant="h6" component="div">
+        <Typography variant="body1" component="div">
           {item.name}
         </Typography>
         <Typography variant="body1">
           {item.category}
         </Typography>
-        <Typography variant="body1" >
-          Stock: {item.quantity}
+        <Typography variant="label" >
+          Stock: <span style={{color: 'white'}}> {item.quantity}</span>
         </Typography>
+        
       </CardContent>
       <Divider orientation="vertical" flexItem sx={{ height: 'auto', mx: 2 }} />
       <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100px' }}>
@@ -41,9 +48,9 @@ const ItemCard = ({ item, addItem, removeItem }) => {
 
 const ItemList = ({ items, addItem, removeItem }) => {
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={0.5}>
       {items.map((item) => (
-        <Grid item xs={12} sm={12} md={12} key={item.name}>
+        <Grid item xs={12} sm={12} md={12} key={item.name} spacing = {1} gap={1}>
           <ItemCard item={item} addItem={addItem} removeItem={removeItem} />
         </Grid>
       ))}
