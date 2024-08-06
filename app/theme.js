@@ -11,19 +11,19 @@ fontClassName: signika.className,
 
   palette: {
     background: {
-      default: '#111E24', // Background color
+      default: '#111E24', 
     },
     primary: {
-      main: '#02E6A2', // Main highlight color (buttons, etc.)
+      main: '#02E6A2', 
     },
     secondary: {
-      main: '#D32A73', // Other highlighted important things
+      main: '#D32A73', 
     },
     text: {
-      primary: '#E4E8E9', // Text color
+      primary: '#E4E8E9', 
     },
     card: {
-      main: '#1C2E37', // Color for cards on the background
+      main: '#1C2E37', 
     },
   },
 
@@ -38,7 +38,7 @@ fontClassName: signika.className,
         // fontWeight: 700
     },
     h3:{
-        fontSize: '16px',
+        fontSize: '24px',
         // fontWeight: 700
     },
     body1:{
@@ -52,8 +52,8 @@ fontClassName: signika.className,
     },
     button: {
         fontFamily: signika.style.fontFamily,
-        fontSize: '14px', // Set font size for buttons
-        textTransform: 'none', // Prevent text transformation (i.e., no forced capitalization)
+        fontSize: '14px',
+        textTransform: 'none', 
       },
   },
 
@@ -61,7 +61,7 @@ fontClassName: signika.className,
     MuiTextField: {
       styleOverrides: {
         root: {
-          // Apply global text styles to all TextField components
+         
           '& input': {
             fontFamily: signika.style.fontFamily,
             fontSize: '14px',

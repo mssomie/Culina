@@ -1,8 +1,8 @@
 'use client'
 import {useState, useEffect} from 'react'
 import {firestore} from '@/firebase'
-import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
-import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc } from "firebase/firestore";
+import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, Input, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
+import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc, addDoc} from "firebase/firestore";
 import theme from './theme'
 import CustomCard from "@/components/CustomCard"
 import ItemList from "@/components/ItemCard"
@@ -80,19 +80,65 @@ export default function Home() {
   const handleSearchChange = (event) =>{
     setSearchQuery(event.target.value);
   };
+  const [formValues, setFormValues] = useState({
+    name: '',
+    category: '',
+    quantity: '',
+    image: null,
+  });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
+
+  const handleImageChange = (event) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      image: event.target.files[0],
+    }));
+  };
+
+  
+
+  // Function to handle form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
+    console.log('Form submitted:', formValues); // Log the form values for debugging
+
+    try {
+      // Reference to the 'items' collection in Firestore
+      const docRef = await addDoc(collection(firestore, 'inventory'), {
+        name: formValues.name,
+        category: formValues.category,
+        quantity: Number(formValues.quantity), // Ensure stock is a number
+        image: formValues.image ? formValues.image.name : '', // Store image name (You need to handle image storage separately)
+      });
+      console.log('Document written with ID: ', docRef.id); // Log the document ID for reference
+
+      // Reset the form values
+      setFormValues({
+        name: '',
+        category: '',
+        quantity: '',
+        image: null,
+      });
+    } catch (e) {
+      console.error('Error adding document: ', e); // Log any errors
+    }
+  };
+
+
 
   const filteredItems = inventory.filter(item=>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
     // to include category
     // ||item.category.toLowerCase().includes(searchQuery.toLowerCase())
   )
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log('Form submitted:', formValues);
-    // Add form submission logic here
-  };
-
+  
   
   return(
     <ThemeProvider theme = {theme}>
@@ -107,6 +153,7 @@ export default function Home() {
     >
        <Modal open ={open} onClose ={handleClose}>
       <Box 
+        component="form" onSubmit={handleSubmit} 
         position ="absolute" 
         top="50%" 
         left="50%" 
@@ -114,28 +161,83 @@ export default function Home() {
         border= "2px solid #000"  
         boxshadow={24} 
         p={4} 
-        display ="flex" 
-        flexDirection="column gap={3}"
-        sx={{transform: "translate(-50%, -50%)", backgroundColor: theme.palette.background.default, // Apply background color from the theme
-      }}
-        >
-          <Typography variant ="h6">Add Item </Typography> 
-          <FormGroup>
-            <row>
-              
-            </row>
-          </FormGroup>
-          <Stack width="100%" direction ="row" spacing={2}>
-            <CustomTextField
-            variant="outlined"
+        sx={{mt: 4, transform: "translate(-50%, -50%)", backgroundColor: theme.palette.background.default}}>
+        
+       
+        <Typography variant="h3" sx={{color: 'white', alignItems: 'center', textAlign:"center", p: 4 }} gutterBottom>
+          Add New Item
+        </Typography>
+        <CustomTextField
+          variant="outlined"
+          placeholder="Name"
+          name="name"
+          value={formValues.name}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        <CustomTextField
+          variant="outlined"
+          placeholder="Category"
+          name="category"
+          value={formValues.category}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        <CustomTextField
+          variant="outlined"
+          placeholder="quantity"
+          name="quantity"
+          type="number"
+          value={formValues.quantity}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body1" gutterBottom sx={{color: 'white'}}>
+            Upload Image
+          </Typography>
+          <Input
+            type="file"
+            inputProps={{ accept: 'image/*' }}
+            onChange={handleImageChange}
             fullWidth
-            value ={itemName}
-            onChange = {(e)=> {
-              setItemName(e.target.value)
-            }}>
-
-            </CustomTextField>
-            <Button
+            sx={{
+              backgroundColor: "#0f171A",
+              borderRadius: '16px',
+              padding: '1px 1px',
+              '& input': {
+                padding: '0.8rem 0.8rem', // Adjust padding to fit height
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#4c5e63',
+                  borderRadius: '16px',
+                  borderWidth: '1px',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#02E6A2',
+                  borderWidth: '1px',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#02E6A2',
+                  borderWidth: '1px',
+                },
+              },
+            }}
+          />
+        </Box>
+        <Button variant="contained" color="primary" type="submit" onSubmit={handleSubmit} >
+        
+                {/* // addItem(itemName)
+                // setItemName('')
+                // handleClose()}}> */}
+          Submit
+        </Button>
+      </Box>
+            {/* <Button
               variant="outlined"
               onClick={()=>{
                 addItem(itemName)
@@ -143,11 +245,11 @@ export default function Home() {
                 handleClose()
               }}>ADD
 
-              </Button>
-          </Stack>
+              </Button> */}
+        
 
 
-      </Box>
+      {/* </Box> */}
 
     </Modal>
        <Container sx={{
