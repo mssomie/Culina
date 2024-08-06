@@ -1,7 +1,14 @@
 // theme.js
 import { createTheme } from '@mui/material/styles';
+import { Signika, Rubik } from "next/font/google";
+
+const signika = Signika({ subsets: ["latin"] });
+const rubik = Rubik({subsets: ["latin"]});
+
 
 const theme = createTheme({
+fontClassName: signika.className,
+
   palette: {
     background: {
       default: '#111E24', // Background color
@@ -21,7 +28,7 @@ const theme = createTheme({
   },
 
   typography:{
-    fontFamily: 'Signika, Arial, sans-serif',
+    fontFamily: 'signika',
     h1:{
         fontSize: '44px',
         // fontWeight: 700

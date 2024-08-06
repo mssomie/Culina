@@ -1,12 +1,12 @@
 'use client'
-import Image from "next/image";
 import {useState, useEffect} from 'react'
 import {firestore} from '@/firebase'
-import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, ThemeProvider, createTheme} from '@mui/material' 
+import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper} from '@mui/material' 
 import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc } from "firebase/firestore";
 import theme from './theme'
 import CustomCard from "@/components/CustomCard"
 import ItemList from "@/components/ItemCard"
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -70,6 +70,21 @@ export default function Home() {
   // Put the models
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+
+  // Search function
+  
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (event) =>{
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredItems = inventory.filter(item=>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    // to include category
+    // ||item.category.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  
   return(
     <ThemeProvider theme = {theme}>
        <Box
@@ -86,9 +101,7 @@ export default function Home() {
           padding: 2,
         }}
       >
-        <Typography variant = "h1">
-       Stockify
-        </Typography>
+        <Typography variant = "h1"> Stockify </Typography>
 
         <Grid container spacing ={3} style ={{marginTop: '20px'}}>
           <Grid item xs = {12} md ={3}>
@@ -108,12 +121,35 @@ export default function Home() {
             <Box sx={{ 
               minHeight: '100vh'}}>
               <Typography variant="h2">
-                This should work as well
+                Everyone has the right to freedom of thought
               </Typography>
+              <Box width="100%" sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <Paper
+                  component="form"
+                  sx={{ display: 'flex', alignItems: 'center', width:400, width: '100%', p: '2px 4px' }}
+                >
+                  <TextField
+                    variant="outlined"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={handleSearchChange}>
+                            <SearchIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Paper>
+              </Box>
               {               
                   <Grid>
                     <ItemList 
-                    items={inventory}
+                    items={filteredItems}
                     addItem={addItem}
                     removeItem={removeItem}
                     />               

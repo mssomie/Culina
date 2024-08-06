@@ -3,14 +3,14 @@ import { Card, CardContent, CardMedia, Typography, Divider, IconButton, Grid } f
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove'; 
 import CustomCard from './CustomCard';
-import Image from 'next/image';
+
 
 const ItemCard = ({ item, addItem, removeItem }) => {
   return (
     <CustomCard sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
       <CardMedia
-        component="image"
-        sx={{ width: 100, height: 100, objectFit: 'cove r' }}
+        component="img"
+        sx={{ width: 100, height: 100, objectFit: 'cover' }}
         image={item.image || "bf.png"}
         alt={item.name}
       >
