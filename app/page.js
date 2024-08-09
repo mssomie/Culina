@@ -1,7 +1,7 @@
 'use client'
 import {useState, useEffect} from 'react'
 import {firestore} from '@/firebase'
-import { Grid, Card, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, Input, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
+import { Grid, Card, Divider, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, Input, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
 import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc, addDoc} from "firebase/firestore";
 import theme from './theme'
 import CustomCard from "@/components/CustomCard"
@@ -9,16 +9,23 @@ import ItemList from "@/components/ItemCard"
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import CustomTextField from '@/components/CustomTextField';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import React from 'react';
+import ReactMarkdown from'react-markdown';
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [recipe, setRecipe] = useState('')
   const [open, setOpen] = useState(false)
+  const [ingredients, setIngredients] = useState([]);
   const [itemName, setItemName] = useState('')
   const [items, setItems] = useState([]);
   
 
   // Make async so app is not frozen while fetching
   const updateInventory = async () =>{
+
     const snapshot = query(collection(firestore, 'inventory'))
     const docs = await getDocs(snapshot)
     const inventoryList = []
@@ -31,7 +38,9 @@ export default function Home() {
       
     })
     setInventory(inventoryList)
-    // console.log(inventoryList)
+    // TODO set ingredients list to only select elements where category is food
+    setIngredients(inventoryList);
+    // generateRecipe(inventoryList); 
 
   }
 
@@ -51,6 +60,13 @@ export default function Home() {
     }
   }
 
+  const handleCameraInput = () => {
+    // Logic to handle camera input can be implemented here
+    // For now, we'll just log a message
+    console.log('Camera input clicked');
+  };
+
+
   const addItem = async (item) =>{
     const docRef = doc(collection(firestore, 'inventory'), item)
     const docSnap = await getDoc(docRef)
@@ -67,7 +83,43 @@ export default function Home() {
   // This will only run when the page loads
   useEffect(()=>{
     updateInventory()
-  }, [])
+  }, 
+  [])
+
+  const generateRecipe = async(ingredientsArray) =>{
+
+    try{
+      const response = await fetch('/api/generate-recipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ingredients: ingredientsArray}),
+      });
+
+      if (!response.ok){
+        const errorData = await response.json();
+        console.error('Error: ', errorData.error);
+        return;
+      }
+      const data = await response.json();
+
+      setRecipe(data.recipe);
+      
+      setLoading(false);
+      console.log(data.recipe);
+
+    } catch(error){
+
+      console.error('Error generating recipe: ', error);
+    } finally{
+      setLoading(false);
+    }
+    // Send ingredient list to API route
+    
+  };
+  
+
 
   // Put the models
   const handleOpen = () => setOpen(true)
@@ -129,6 +181,8 @@ export default function Home() {
     } catch (e) {
       console.error('Error adding document: ', e); // Log any errors
     }
+    handleClose();
+
   };
 
 
@@ -196,7 +250,7 @@ export default function Home() {
           sx={{ mb: 2 }}
         />
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body1" gutterBottom sx={{color: 'white'}}>
+          <Typography variant="body1" gutterBottom sx={{color:'white'}}>
             Upload Image
           </Typography>
           <Input
@@ -204,6 +258,18 @@ export default function Home() {
             inputProps={{ accept: 'image/*' }}
             onChange={handleImageChange}
             fullWidth
+            
+            endAdornment={
+              <InputAdornment position="end">
+                <Divider orientation="vertical" flexItem sx={{ mx: 1 , color:'white'}} />
+                <IconButton sx={{color: theme.palette.primary.main}} onClick={handleCameraInput}>
+                  <CameraAltIcon />
+                  <Typography sx={{color: 'white', padding:'8px'}}>
+                    Use Camera
+                  </Typography>
+                </IconButton>
+              </InputAdornment>
+            }
             sx={{
               backgroundColor: "#0f171A",
               borderRadius: '16px',
@@ -262,11 +328,23 @@ export default function Home() {
         <Grid container spacing ={3} style ={{marginTop: '20px'}}>
           <Grid item xs = {12} md ={3}>
             <CustomCard sx={{ 
-              minHeight: '100vh'}}>
+              minHeight: '40vh'}}>
               <CardContent>
                 <Box>
-                <Typography variant = "h2" >
-                  This it the time to see it all
+                  <Typography variant="body1">
+                    Not sure what to make?
+                  </Typography>
+                <Button sx={{
+                       padding: '0.65em 1rem',
+                  }}
+
+                  variant = "contained" onClick={()=>{generateRecipe(inventory)}} startIcon ={<AddIcon />}>
+                     Generate Recipe
+                  </Button>
+
+                  <Typography variant="body2">
+                    <ReactMarkdown>{recipe}</ReactMarkdown>
+
                   </Typography>
                 </Box>
     
@@ -277,7 +355,7 @@ export default function Home() {
             <Box sx={{ 
               minHeight: '100vh'}}>
               <Typography variant="h2">
-                Everyone has the right to freedom of thought
+                {/* Everyone has the right to freedom of thought */}
               </Typography>
               <Box width="100%" sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
                 <Grid container spacing ={2}>

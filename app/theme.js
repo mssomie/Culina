@@ -45,6 +45,10 @@ fontClassName: signika.className,
         fontSize: '16px',
         // fontWeight: 700
     },
+    body2:{
+      fontSize: '16px',
+      fontWeight: 200
+  },
     label:{
         fontSize: '16px',
         fontWeight: 300,
