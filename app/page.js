@@ -1,7 +1,7 @@
 'use client'
 import {useState, useEffect} from 'react'
-import {firestore} from '@/firebase'
-import { Grid, Card, Divider, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, Input, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
+import {firestore, storage} from '@/firebase'
+import { Grid, Select, MenuItem, Card, Divider, CardContent, Container, Box, Typography, Modal, Stack, TextField, Button, Input, ThemeProvider, createTheme, InputBase, IconButton, InputAdornment, Paper, FormGroup} from '@mui/material' 
 import { collection, getDocs, getDoc, setDoc, doc, query, deleteDoc, addDoc} from "firebase/firestore";
 import theme from './theme'
 import CustomCard from "@/components/CustomCard"
@@ -12,6 +12,8 @@ import CustomTextField from '@/components/CustomTextField';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import React from 'react';
 import ReactMarkdown from'react-markdown';
+import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -21,7 +23,8 @@ export default function Home() {
   const [ingredients, setIngredients] = useState([]);
   const [itemName, setItemName] = useState('')
   const [items, setItems] = useState([]);
-  
+  const auth = getAuth();
+
 
   // Make async so app is not frozen while fetching
   const updateInventory = async () =>{
@@ -158,18 +161,39 @@ export default function Home() {
 
   // Function to handle form submission
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-    console.log('Form submitted:', formValues); // Log the form values for debugging
+    event.preventDefault(); 
+    console.log('Form submitted:', formValues); 
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log('logged in')
+      } else {
+        // No user is signed in, redirect to login or show an error
+        console.error('User is not authenticated.');
+      }
+    });
 
     try {
+      console.log('gotHere');
+      let imageUrl ='';
+
+      if (formValues.image) {
+        console.log('Attempting to upload image:', formValues.image.name);
+        const storageRef = ref(storage, `images/${formValues.image.name}`);
+        const snapshot = await uploadBytes(storageRef, formValues.image);
+        imageUrl = await getDownloadURL(snapshot.ref);
+        console.log('Image uploaded successfully:', imageUrl);
+    }
+
+
       // Reference to the 'items' collection in Firestore
       const docRef = await addDoc(collection(firestore, 'inventory'), {
         name: formValues.name,
         category: formValues.category,
-        quantity: Number(formValues.quantity), // Ensure stock is a number
-        image: formValues.image ? formValues.image.name : '', // Store image name (You need to handle image storage separately)
+        quantity: Number(formValues.quantity), 
+        image: imageUrl , 
       });
-      console.log('Document written with ID: ', docRef.id); // Log the document ID for reference
+      console.log('Document written with ID: ', docRef.id); 
 
       // Reset the form values
       setFormValues({
@@ -179,9 +203,10 @@ export default function Home() {
         image: null,
       });
     } catch (e) {
-      console.error('Error adding document: ', e); // Log any errors
+      console.error('Error adding document: ', e); 
     }
     handleClose();
+
 
   };
 
@@ -229,16 +254,20 @@ export default function Home() {
           onChange={handleChange}
           fullWidth
           sx={{ mb: 2 }}
+          required
         />
-        <CustomTextField
-          variant="outlined"
-          placeholder="Category"
+        <Select
           name="category"
           value={formValues.category}
           onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
+          label="Category" 
+          required
+        >
+          <MenuItem value="food">Food</MenuItem>
+          <MenuItem value="utensils">Utensils</MenuItem>
+          <MenuItem value="other">Other</MenuItem>
+          {/* Add more MenuItem components as needed */}
+        </Select>
         <CustomTextField
           variant="outlined"
           placeholder="quantity"
@@ -248,6 +277,7 @@ export default function Home() {
           onChange={handleChange}
           fullWidth
           sx={{ mb: 2 }}
+          required
         />
         <Box sx={{ mb: 2 }}>
           <Typography variant="body1" gutterBottom sx={{color:'white'}}>
@@ -297,25 +327,11 @@ export default function Home() {
         </Box>
         <Button variant="contained" color="primary" type="submit" onSubmit={handleSubmit} >
         
-                {/* // addItem(itemName)
-                // setItemName('')
-                // handleClose()}}> */}
+              
           Submit
         </Button>
       </Box>
-            {/* <Button
-              variant="outlined"
-              onClick={()=>{
-                addItem(itemName)
-                setItemName('')
-                handleClose()
-              }}>ADD
-
-              </Button> */}
-        
-
-
-      {/* </Box> */}
+          
 
     </Modal>
        <Container sx={{
