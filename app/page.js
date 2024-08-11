@@ -384,7 +384,7 @@ export default function Home() {
                   <Typography variant="h2" textAlign={"center"}>
                     Culina👩🏾‍🍳✨
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" textAlign={"center"}>
                    Generate recipes with our talented chef AI
                   </Typography>
                   <Box textAlign={"center"}>
