@@ -8,6 +8,7 @@ import CustomCard from "@/components/CustomCard"
 import ItemList from "@/components/ItemCard"
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import CustomTextField from '@/components/CustomTextField';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import React from 'react';
@@ -36,7 +37,6 @@ export default function Home() {
       inventoryList.push({
         name: doc.id,
         ...doc.data()
-
       })
       
     })
@@ -71,12 +71,14 @@ export default function Home() {
 
 
   const addItem = async (item) =>{
-    const docRef = doc(collection(firestore, 'inventory'), item)
+    const docRef = doc(firestore, 'inventory', item)
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()){
-      const {quantity} = docSnap.data()
-      await setDoc(docRef, {quantity: quantity+1})
+      const {quantity} = docSnap.data() || {quantity: 0};
+      await setDoc(docRef, {quantity: quantity+1}, //{merge: true}
+
+      )
     } else{
       await setDoc(docRef, {quantity: 1})
     }
@@ -134,6 +136,7 @@ export default function Home() {
 
   const handleSearchChange = (event) =>{
     setSearchQuery(event.target.value);
+
   };
   const [formValues, setFormValues] = useState({
     name: '',
@@ -174,7 +177,6 @@ export default function Home() {
     });
 
     try {
-      console.log('gotHere');
       let imageUrl ='';
 
       if (formValues.image) {
@@ -186,14 +188,33 @@ export default function Home() {
     }
 
 
-      // Reference to the 'items' collection in Firestore
-      const docRef = await addDoc(collection(firestore, 'inventory'), {
-        name: formValues.name,
-        category: formValues.category,
-        quantity: Number(formValues.quantity), 
-        image: imageUrl , 
-      });
-      console.log('Document written with ID: ', docRef.id); 
+      const docRef = doc(firestore, 'inventory', formValues.name);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()){
+        const {quantity} = docSnap.data();
+        const newQuantity = quantity + Number(formValues.quantity);
+        await setDoc(docRef, {
+          name: formValues.name,
+          category: formValues.category,
+          quantity: newQuantity,
+          image: imageUrl || docSnap.data().image,
+        
+        }, {merge: true})
+      }
+      
+      else{
+        await setDoc(docRef, {
+          name: formValues.name,
+          category: formValues.category,
+          quantity: Number(formValues.quantity), 
+          image: imageUrl , 
+        }//,{merge: true}
+      );
+        console.log('Document written with ID: ', docRef.id); 
+      }
+      
+      
 
       // Reset the form values
       setFormValues({
@@ -206,17 +227,28 @@ export default function Home() {
       console.error('Error adding document: ', e); 
     }
     handleClose();
+    updateInventory();
 
 
   };
 
 
 
-  const filteredItems = inventory.filter(item=>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    // to include category
-    // ||item.category.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredItems = inventory.filter(item => {
+    const nameMatches = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    // Uncomment the next line to include category filtering as well.
+    // const categoryMatches = item.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    console.log(`Item: ${item.name}, Search Query: ${searchQuery}, Name Matches: ${nameMatches}`);
+    
+    // Return true if either name or category matches the search query
+    return nameMatches; // || categoryMatches; 
+  });
+  useEffect(() => {
+    console.log('Filtered Items:', filteredItems);
+    
+  }, [filteredItems, searchQuery]);
+  
   
   
   return(
@@ -344,19 +376,28 @@ export default function Home() {
         <Grid container spacing ={3} style ={{marginTop: '20px'}}>
           <Grid item xs = {12} md ={3}>
             <CustomCard sx={{ 
-              minHeight: '40vh'}}>
+              minHeight: '40vh',
+              maxHeight: '100vh',
+              overflow: 'scroll'}}>
               <CardContent>
-                <Box>
-                  <Typography variant="body1">
-                    Not sure what to make?
+                <Box p={1}>
+                  <Typography variant="h2" textAlign={"center"}>
+                    Culina👩🏾‍🍳✨
                   </Typography>
-                <Button sx={{
-                       padding: '0.65em 1rem',
-                  }}
+                  <Typography variant="body2">
+                   Generate recipes with our talented chef AI
+                  </Typography>
+                  <Box textAlign={"center"}>
+                    <Button sx={{
+                        padding: '0.65em 1rem',
+                    }}
 
-                  variant = "contained" onClick={()=>{generateRecipe(inventory)}} startIcon ={<AddIcon />}>
-                     Generate Recipe
-                  </Button>
+                    variant = "contained" onClick={()=>{generateRecipe(inventory)}} startIcon ={<SmartToyIcon />}>
+                      Generate Recipe
+                    </Button>
+
+                  </Box>
+               
 
                   <Typography variant="body2">
                     <ReactMarkdown>{recipe}</ReactMarkdown>
@@ -464,72 +505,6 @@ export default function Home() {
 
     </ThemeProvider>
    
-  //  <Box width="100vw" height="100vh" display = "flex" flexDirection="column" justifyContent ="center" alignItems ="center" gap={2}> 
-   
-  //   <Button variant = "contained" onClick={()=>{
-  //     handleOpen()}}
-  //     > Add Item</Button>
-
-  //     <Box border ="1px solid #333">
-  //       <Box
-  //         width ="800px"
-  //         height="100px"
-  //         bgcolor="ADD8E6"
-  //         // Display needs to be flexed for it to be centered?
-  //         display="flex"
-  //         alignItems="center"
-  //         justifyContent="center">
-  //           <Typography variant ="h2" color="#333">
-  //             Inventory Items
-
-  //           </Typography>
-  //         </Box>
-          
-  //         <Stack
-  //         width ="800px"
-  //         height="300px"
-  //         spacing={2}
-  //         overflow="auto">{
-  //           inventory.map(({name, quantity})=>(
-  //             <Box key = {name} width ="100%"
-  //             minheight="150px"
-  //             display="flex"
-  //             alignItems="center"
-  //             justifyContent="space-between"
-  //             bgColor="#f0f0f0"
-  //             padding={5}>
-  //               <Typography 
-  //               variant="h3"
-  //               color="#333"
-  //               textAlign="center">
-  //                 {name.charAt(0).toUpperCase() + name.slice(1)}
-  //                 </Typography>
-  //                 <Typography 
-  //               variant="h3"
-  //               color="#333"
-  //               textAlign="center">
-  //                 {quantity}
-  //                 </Typography>
-  //                 <Stack direction="row" spacing={2}>
-  //                 <Button variant="contained" onClick={()=> {
-  //                   addItem(name)
-  //                 }}>
-  //                   Add Item
-  //                   </Button>
-  //                 <Button variant="contained" onClick={()=> {
-  //                   removeItem(name)
-  //                 }}>
-  //                   Remove
-  //                   </Button>
-  //                   </Stack>
-
-
-  //             </Box>
-
-  //           ))}
-
-  //         </Stack>
-  //     </Box>
-  // </Box>
+  
   )
 }

@@ -13,7 +13,7 @@ const ItemCard = ({ item, addItem, removeItem }) => {
         sx={{ width: 80,
              height: 80, 
              objectFit: 'contain',
-             borderRadius: '16px', // Adjust the border radius as needed (e.g., 1 for smaller radius, 2 for medium, etc.)
+             borderRadius: '16px', 
              p: 4, 
              marginLeft: '0.8rem'
              }}
@@ -51,7 +51,7 @@ const ItemList = ({ items, addItem, removeItem }) => {
     <Grid container spacing={0.5}>
       {items.map((item) => (
         <Grid item xs={12} sm={12} md={12} key={item.name} spacing = {1} gap={1}>
-          <ItemCard item={item} addItem={addItem} removeItem={removeItem} />
+          <ItemCard item={item} addItem={addItem} removeItem={removeItem}/>
         </Grid>
       ))}
     </Grid>

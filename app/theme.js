@@ -31,11 +31,11 @@ fontClassName: signika.className,
     fontFamily: signika.style.fontFamily,
     h1:{
         fontSize: '44px',
-        // fontWeight: 700
+        fontWeight: 700
     },
     h2:{
         fontSize: '36px',
-        // fontWeight: 700
+        fontWeight: 500
     },
     h3:{
         fontSize: '24px',
