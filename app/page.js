@@ -59,7 +59,7 @@ export default function Home() {
         await deleteDoc(docRef)
       }
       else{
-        await setDoc(docRef, {quantity: quantity-1})
+        await setDoc(docRef, {quantity: quantity-1}, {merge: true})
       }
       await updateInventory()
     }
@@ -78,7 +78,7 @@ export default function Home() {
 
     if (docSnap.exists()){
       const {quantity} = docSnap.data() || {quantity: 0};
-      await setDoc(docRef, {quantity: quantity+1}, //{merge: true}
+      await setDoc(docRef, {quantity: quantity+1}, {merge: true}
 
       )
     } else{
