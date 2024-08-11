@@ -15,6 +15,8 @@ import React from 'react';
 import ReactMarkdown from'react-markdown';
 import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import CustomSelect from '@/components/CustomSelect';
+
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -272,6 +274,8 @@ export default function Home() {
         border= "2px solid #000"  
         boxshadow={24} 
         p={4} 
+        gap={2}
+        spacing={2}
         sx={{mt: 4, transform: "translate(-50%, -50%)", backgroundColor: theme.palette.background.default}}>
         
        
@@ -288,18 +292,37 @@ export default function Home() {
           sx={{ mb: 2 }}
           required
         />
-        <Select
+        <CustomSelect
           name="category"
           value={formValues.category}
           onChange={handleChange}
           label="Category" 
+          fullWidth
           required
+          placeholder="Category"
+          variant="outlined"
+          sx={
+            {
+              borderRadius: '16px',
+              backgroundColor: '#0f171A',
+              
+
+            }
+          }
+          displayEmpty
+          renderValue={(selected) => {
+          if (selected.length === 0) {
+            return <p>Category</p>;  // Placeholder text
+          }
+        return selected;
+  }}
         >
+          
           <MenuItem value="food">Food</MenuItem>
           <MenuItem value="utensils">Utensils</MenuItem>
           <MenuItem value="other">Other</MenuItem>
           {/* Add more MenuItem components as needed */}
-        </Select>
+        </CustomSelect>
         <CustomTextField
           variant="outlined"
           placeholder="quantity"
@@ -308,7 +331,7 @@ export default function Home() {
           value={formValues.quantity}
           onChange={handleChange}
           fullWidth
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, marginTop: '15px'}}
           required
         />
         <Box sx={{ mb: 2 }}>

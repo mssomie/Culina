@@ -62,6 +62,28 @@ fontClassName: signika.className,
   },
 
   components: {
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#0f171A', // Set the background color of the menu item
+          color: '#FFFFFF', // Set the default text color
+          '&:hover': {
+            backgroundColor: '#0f171A', // Keep background color on hover
+            color: '#02E6A2', // Change text color on hover
+            border: '1px solid #02E6A2', // Add border on hover
+          },
+          '&.Mui-selected': {
+            backgroundColor: '#0f171A', // Keep background color when selected
+            color: '#02E6A2', // Change text color when selected
+            border: '1px solid #02E6A2', // Add border when selected
+          },
+          '& input': {
+            fontFamily: signika.style.fontFamily,
+            fontSize: '14px',
+          },
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
